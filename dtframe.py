@@ -66,6 +66,21 @@ class DTFrame(pd.DataFrame):
     def split_on_attribute(self, attribute, attr_val):
         return DTFrame(self[self[attribute] == attr_val])
 
+    @classmethod
+    def read_txt(cls, filename):
+        file = open(filename, 'r')
+        lines = file.readlines()
+        dic = {}
+        for topic in lines[0].split():
+            dic[topic] = []
+
+        for i in range(2, 102):
+            line = lines[i].split()
+            for j, topic in enumerate(dic):
+                dic[topic].append(line[j])
+
+        return cls(dic)
+
 
 
 
