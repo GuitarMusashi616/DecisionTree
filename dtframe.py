@@ -1,6 +1,6 @@
 import pandas as pd
 import math
-
+from decision_tree import *
 
 def calculate_entropy(event_probs):
     entropy = 0
@@ -45,23 +45,29 @@ class DTFrame(pd.DataFrame):
 
     def decision_tree(self):
         print()
+        dt = DecisionTree()
         _, attribute = self.next_best_attribute_for_info_gain()
         queue = [(self, attribute)]
 
         while queue:
             df, attribute = queue.pop(0)
-            print(attribute)
+            q = Question(attribute)
+            dt.add(q)
+            # print(attribute)
 
             for uniq_attr_val in set(df[attribute]):
                 df_attr = df.split_on_attribute(attribute, uniq_attr_val)
                 if df_attr.current_entropy():
                     _, new_attribute = df_attr.next_best_attribute_for_info_gain()
-                    print(f'\t{uniq_attr_val} - {new_attribute}')
+                    q.new_case(uniq_attr_val, new_attribute)
+                    # print(f'\t{uniq_attr_val} - {new_attribute}')
                     queue.append((df_attr, new_attribute))
                 else:
                     if len(df_attr[df_attr.columns[-1]]) > 0:
                         val = list(df_attr[df_attr.columns[-1]])[0]
-                        print(f'\t{uniq_attr_val} - {val}')
+                        q.new_case(uniq_attr_val, val)
+                        # print(f'\t{uniq_attr_val} - {val}')
+        return dt
 
     def split_on_attribute(self, attribute, attr_val):
         return DTFrame(self[self[attribute] == attr_val])
@@ -80,6 +86,47 @@ class DTFrame(pd.DataFrame):
                 dic[topic].append(line[j])
 
         return cls(dic)
+
+    # def test_decision_tree(self, dt):
+    #     assert isinstance(dt, DecisionTree), "Argument must be a decision tree instance"
+    #     estimates = []
+    #
+    #     for i in range(len(self)):
+    #         row = self.iloc[i]
+    #         j = 0
+    #         not_found_error = True
+    #         while j < len(dt.questions):
+    #             q = dt.questions[j]
+    #             choice = row[q.topic]
+    #             next_col = q.get_result(choice)
+    #             if next_col not in self.columns:
+    #                 not_found_error = False
+    #                 break
+    #             j += 1
+    #         if not_found_error:
+    #             raise ValueError("estimate could not be determined, decision tree is incomplete")
+    #         else:
+    #             estimates.append(next_col)
+
+    def test_decision_tree(self, dt):
+        assert isinstance(dt, DecisionTree), "Argument must be a decision tree instance"
+        estimates = []
+        actual_answers = []
+        for i in range(len(self)):
+            result = dt.process(self, i)
+            estimates.append(result)
+            actual_answers.append(self.iloc[i][self.columns[-1]])
+
+        correct = 0
+        for i, estimate in enumerate(estimates):
+            if estimate == actual_answers[i]:
+                correct += 1
+        print(f"{correct}/{len(estimates)} correct")
+
+
+
+
+
 
 
 

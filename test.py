@@ -66,16 +66,27 @@ def test_set_entropy(wait_for_table):
 
 
 def test_decision_tree(wait_for_table, play_golf):
-    wait_for_table.decision_tree()
-    print()
-    print()
-    play_golf.decision_tree()
+    print(wait_for_table.decision_tree())
+    print(play_golf.decision_tree())
 
 
 def test_house_votes_tree(train_house_votes, test_house_votes):
-    train_house_votes.decision_tree()
-    print()
-    print()
-    test_house_votes.decision_tree()
+    print(train_house_votes.decision_tree())
+    print(test_house_votes.decision_tree())
+
+
+def test_accuracy(train_house_votes, test_house_votes):
+    dt_train = train_house_votes.decision_tree()
+    dt_test = test_house_votes.decision_tree()
+
+    print('----Train House Votes----')
+    print(dt_train)
+    print('Tested with test house votes:')
+    test_house_votes.test_decision_tree(dt_train)
+
+    print('----Test House Votes----')
+    print(dt_test)
+    print('Tested with train house votes:')
+    train_house_votes.test_decision_tree(dt_test)
 
 
